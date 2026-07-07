@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP Knowledge Artifact Repository</title>
+
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+
+        // Save original text for dynamic re-rendering
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.mermaid').forEach(el => {
+                el.setAttribute('data-original', el.textContent);
+            });
+        });
+
+        function reloadMermaid(theme) {
+            let config = {
+                startOnLoad: false,
+                theme: theme === 'dark' ? 'dark' : 'neutral',
+                flowchart: { useWidth: 1000, htmlLabels: true }
+            };
+            if (theme !== 'dark') {
+                config.themeVariables = { fontFamily: 'sans-serif', primaryColor: '#0645ad', edgeLabelBackground: '#ffffff', tertiaryColor: '#fff' };
+            } else {
+                config.themeVariables = { fontFamily: 'sans-serif', primaryColor: '#79a1ff', edgeLabelBackground: '#202122', tertiaryColor: '#101418', background: '#202122' };
+            }
+            mermaid.initialize(config);
+            document.querySelectorAll('.mermaid').forEach((el) => {
+                el.removeAttribute('data-processed');
+                el.textContent = el.getAttribute('data-original');
+            });
+            setTimeout(() => {
+                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            }, 10);
+        }
+
+        // The document theme is light by default
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            themeVariables: { fontFamily: 'sans-serif', primaryColor: '#0645ad', edgeLabelBackground: '#ffffff', tertiaryColor: '#fff' },
+            flowchart: { useWidth: 1000, htmlLabels: true }
+        });
+    </script>
+
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #f6f6f6;
+            --bg-secondary: #ffffff;
+            --text-primary: #202122;
+            --text-secondary: #54595d;
+            --accent: #0645ad;
+            --accent-hover: #447ff5;
+            --accent-light: #f8f9fa;
+            --border: #a2a9b1;
+            --border-light: #eaecf0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #202122;
+            --bg-secondary: #101418;
+            --text-primary: #f8fafc;
+            --text-secondary: #a2a9b1;
+            --accent: #79a1ff;
+            --accent-hover: #9bbaf5;
+            --accent-light: #1b1e22;
+            --border: #72777d;
+            --border-light: #2d3136;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* Sidebar Navigation ala Wikipedia Vector Skin */
+        aside {
+            width: 176px;
+            background-color: var(--bg-primary);
+            padding: 1.5rem 0.75rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .logo-area {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .logo-title {
+            font-family: "Linux Libertine", "Georgia", "Times", serif;
+            font-size: 1.4rem;
+            font-weight: normal;
+            color: var(--text-primary);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-item {
+            font-size: 0.85rem;
+        }
+
+        .nav-item a {
+            display: block;
+            padding: 0.2rem 0.4rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .nav-item a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-item.active a {
+            color: var(--text-primary);
+            font-weight: bold;
+            text-decoration: none;
+            border-left: 2px solid var(--accent);
+            padding-left: calc(0.4rem - 2px);
+        }
+
+        /* Main Wikipedia Page Body container */
+        main {
+            margin-left: 176px;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 2.5rem 3rem;
+            width: calc(100% - 176px);
+            min-height: 100vh;
+            box-shadow: none;
+        }
+
+        /* Header Controls simulating Wikipedia user menu */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .meta-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle svg {
+            color: var(--text-secondary);
+        }
+
+        section {
+            margin-bottom: 3.5rem;
+            scroll-margin-top: 1.5rem;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: "Times New Roman", serif;
+            font-weight: normal;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 1.65rem;
+            border-bottom: 1px solid var(--border);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.2rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: none;
+        }
+
+        /* Contribution Table and Comparison Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background-color: var(--bg-secondary);
+            margin-bottom: 1rem;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid var(--border);
+        }
+
+        th,
+        td {
+            padding: 0.5em 0.8em;
+        }
+
+        th {
+            background-color: var(--border-light);
+            color: var(--text-primary);
+            font-weight: bold;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover {
+            background-color: var(--accent-light);
+        }
+
+        /* Controls bar for Concept Cards filter */
+        .controls-bar {
+            background-color: var(--accent-light);
+            border: 1px solid var(--border);
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 250px;
+            padding: 0.35rem 0.5rem 0.35rem 1.8rem;
+            border: 1px solid var(--border);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.5rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .filter-btn {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.25rem 0.65rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--border-light);
+        }
+
+        .filter-btn.active {
+            background-color: var(--bg-primary);
+            border-bottom: 2px solid var(--accent);
+            font-weight: bold;
+        }
+
+        /* Concept Cards as Wikipedia Infobox lists */
+        .cards-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .concept-card {
+            background-color: var(--accent-light);
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border-left: 5px solid var(--accent);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-num {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+
+        .author-badge {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+
+        }
+
+        .card-title {
+            font-family: "Linux Libertine", "Georgia", "Times", serif;
+            font-size: 1.25rem;
+            font-weight: normal;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-detail {
+            font-size: 0.9rem;
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.35rem 0;
+        }
+
+        .card-detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+        }
+
+        /* WIKIPEDIA CITATION TOOLTIP CSS */
+        .citation {
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.75rem;
+            text-decoration: none;
+            vertical-align: super;
+            line-height: 0;
+        }
+
+        .citation:hover {
+            text-decoration: underline;
+        }
+
+        .wiki-tooltip {
+            position: relative;
+            border-bottom: 1px dotted var(--text-secondary);
+            cursor: help;
+        }
+
+        .wiki-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            font-family: sans-serif;
+            font-weight: normal;
+            line-height: 1.4;
+            width: max-content;
+            max-width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, bottom 0.2s ease;
+            z-index: 50;
+            pointer-events: none;
+            white-space: normal;
+            text-align: left;
+        }
+
+        .wiki-tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+            bottom: 110%;
+        }
+
+        /* Workflow Diagrams styled as standard Wiki thumbnails */
+        .diagram-card {
+            background-color: var(--accent-light);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: none;
+            overflow-x: auto;
+        }
+
+        .diagram-title {
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .mermaid {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* Real-world applications grid */
+        .app-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .app-card {
+            background-color: var(--bg-secondary);
+            border: none;
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .app-card p {
+            margin-bottom: 0.25rem;
+        }
+
+        .app-title {
+            font-family: "Linux Libertine", "Georgia", "Times", serif;
+            font-size: 1.25rem;
+            font-weight: normal;
+            color: var(--text-primary);
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 0.2rem;
+            margin-bottom: 0.4rem;
+        }
+
+        /* Reflections details */
+        .reflections-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .reflection-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-left: 3px solid var(--accent);
+            border-radius: 0;
+            padding: 1.25rem;
+            box-shadow: none;
+        }
+
+        .reflection-author {
+            font-family: sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Citations & Footer */
+        .overview-card {
+            background-color: var(--bg-secondary);
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .citations-list {
+            margin-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsiveness */
+        @media (max-width: 900px) {
+            aside {
+                display: none;
+            }
+
+            main {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+        }
+
+        /* Wikipedia Typography & Image Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: "Linux Libertine", "Georgia", "Times", serif;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25em;
+            margin-bottom: 0.5em;
+        }
+
+        .wiki-thumb {
+            font-size: 0.9em;
+            flex: 0 0 auto;
+            max-width: 45%;
+            min-width: 300px;
+            margin-left: 1.5rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 4px;
+            text-align: center;
+        }
+
+        .wiki-thumb img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid var(--border-light);
+        }
+
+
+        /* Wikipedia Typography */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: "Linux Libertine", "Georgia", "Times", serif;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25em;
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside>
+        <div class="logo-area">
+            <h1 class="logo-title">NLP Artifacts</h1>
+            <p style="font-size: 0.8rem; color: var(--text-secondary)">Knowledge Repository</p>
+        </div>
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item active" id="nav-info"><a href="#doc-info">Introduction</a></li>
+                <li class="nav-item" id="nav-cards"><a href="#section-cards">Concept Cards</a></li>
+                <li class="nav-item" id="nav-comparison"><a href="#section-comparison">Comparative Analysis</a></li>
+                <li class="nav-item" id="nav-diagrams"><a href="#section-diagrams">Workflow Diagrams</a></li>
+                <li class="nav-item" id="nav-applications"><a href="#section-applications">Real-World Apps</a></li>
+                <li class="nav-item" id="nav-insights"><a href="#section-insights">Research & Insights</a></li>
+                <li class="nav-item" id="nav-sustainability"><a href="#section-sustainability">Sustainability</a></li>
+                <li class="nav-item" id="nav-reflections"><a href="#section-reflections">Reflections</a></li>
+                <li class="nav-item" id="nav-matrix"><a href="#section-matrix">Contribution Matrix</a></li>
+                <li class="nav-item" id="nav-references"><a href="#section-references">References</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <div id="doc-info" style="scroll-margin-top: 2rem;">
+                <h1 style=" font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem;">
+                    NLP Knowledge Artifact Repository</h1>
+                <div class="meta-info">
+                    <p><strong>Course:</strong> Natural Language Processing (CMCORIPE301.1)</p>
+                    <p><strong>Institution:</strong> Shah & Anchor Kutchhi Engineering College</p>
+                    <p><strong>Team Members:</strong> Darpan Kotak & Param Maru</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">
+                <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="M4.93 4.93l1.41 1.41"></path>
+                    <path d="M17.66 17.66l1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="M6.34 17.66l-1.41 1.41"></path>
+                    <path d="M19.07 4.93l-1.41 1.41"></path>
+                </svg>
+                <span id="theme-text">Dark Mode</span>
+            </button>
+        </header>
+
+        <section id="section-cards">
+            <h2>Concept Cards Explorer</h2>
+
+            <div class="controls-bar">
+                <div class="search-container">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="search-input" id="search-input"
+                        placeholder="Search concepts or definitions..." oninput="filterCards()">
+                </div>
+
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all" onclick="setFilter(this)">All</button>
+                    <button class="filter-btn" data-filter="Preprocessing"
+                        onclick="setFilter(this)">Preprocessing</button>
+                    <button class="filter-btn" data-filter="Feature Engineering" onclick="setFilter(this)">Feature
+                        Engineering</button>
+                    <button class="filter-btn" data-filter="Language Representation" onclick="setFilter(this)">Language
+                        Representation</button>
+                    <button class="filter-btn" data-filter="Language Models" onclick="setFilter(this)">Language
+                        Models</button>
+                </div>
+            </div>
+
+            <div class="cards-grid" id="concept-cards-container">
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">01</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Sentence Segmentation</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+
+
+                            <div class="card-detail"><span class="detail-label">Definition</span><span
+                                    class="detail-value card-definition">Splitting a large paragraph into individual
+                                    sentences.</span></div>
+                            <div class="card-detail"><span class="detail-label">Purpose</span><span
+                                    class="detail-value">Models
+                                    often process text sentence-by-sentence to understand <span class="wiki-tooltip"
+                                        data-tooltip="The set of structural rules governing the composition of clauses, phrases, and words in a given natural language.">local
+                                        grammar<a id="cite1" href="#ref1" class="citation">[1]</a></span>.</span></div>
+                            <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                                    class="detail-value">Looks for punctuation like periods, exclamation marks, or
+                                    question
+                                    marks, while ignoring abbreviations (like "Dr." or "U.S.A.").</span></div>
+                            <div class="card-detail"><span class="detail-label">Example</span><span
+                                    class="detail-value">"Hello
+                                    Dr. John. How are you?" \(\rightarrow\) ["Hello Dr. John.", "How are you?"]</span>
+                            </div>
+                            <div class="card-detail"><span class="detail-label">Advantages</span><span
+                                    class="detail-value">Makes long documents easier to process in chunks.</span></div>
+                            <div class="card-detail"><span class="detail-label">Limitations</span><span
+                                    class="detail-value">Fails on messy text with missing punctuation.</span></div>
+                            <div class="card-detail"><span class="detail-label">Applications</span><span
+                                    class="detail-value">Machine translation (translating one sentence at a
+                                    time).</span></div>
+
+                        </div>
+                        <div class="wiki-thumb"
+                            style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="./Segmentation.jpeg"
+                                style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);"
+                                alt="Sentence Segmentation">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">02</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Tokenization</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+
+
+                            <div class="card-detail"><span class="detail-label">Definition</span><span
+                                    class="detail-value card-definition">Chopping a sentence into smaller pieces called
+                                    tokens
+                                    (usually words).</span></div>
+                            <div class="card-detail"><span class="detail-label">Purpose</span><span
+                                    class="detail-value">Computers need discrete units to count and analyze.</span>
+                            </div>
+                            <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                                    class="detail-value">Splits text based on spaces and separates punctuation from
+                                    words.</span></div>
+                            <div class="card-detail"><span class="detail-label">Example</span><span
+                                    class="detail-value">"I love
+                                    NLP!" \(\rightarrow\) ["I", "love", "NLP", "!"]</span></div>
+                            <div class="card-detail"><span class="detail-label">Advantages</span><span
+                                    class="detail-value">It
+                                    is the required foundation for all NLP pipelines.</span></div>
+                            <div class="card-detail"><span class="detail-label">Limitations</span><span
+                                    class="detail-value">Hard to do in languages without spaces (like Japanese).</span>
+                            </div>
+                            <div class="card-detail"><span class="detail-label">Applications</span><span
+                                    class="detail-value">Word counting and spell checkers.</span></div>
+
+                        </div>
+                        <div class="wiki-thumb"
+                            style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="./Tokenization.jpeg"
+                                style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);"
+                                alt="Tokenization">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">03</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Case Normalization</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+
+
+                            <div class="card-detail"><span class="detail-label">Definition</span><span
+                                    class="detail-value card-definition">Converting all text to a standard case, usually
+                                    lowercase.</span></div>
+                            <div class="card-detail"><span class="detail-label">Purpose</span><span
+                                    class="detail-value">To
+                                    ensure the computer knows that "Apple" and "apple" are the same word.</span></div>
+                            <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                                    class="detail-value">Maps all uppercase ASCII/Unicode characters to their lowercase
+                                    equivalents.</span></div>
+                            <div class="card-detail"><span class="detail-label">Example</span><span
+                                    class="detail-value">"The
+                                    Quick Brown Fox" \(\rightarrow\) "the quick brown fox"</span></div>
+                            <div class="card-detail"><span class="detail-label">Advantages</span><span
+                                    class="detail-value">Reduces the total number of unique words the model has to
+                                    learn.</span>
+                            </div>
+                            <div class="card-detail"><span class="detail-label">Limitations</span><span
+                                    class="detail-value">You
+                                    lose information (e.g., "Apple" the company vs. "apple" the fruit).</span></div>
+                            <div class="card-detail"><span class="detail-label">Applications</span><span
+                                    class="detail-value">Search engine indexing.</span></div>
+
+                        </div>
+                        <div class="wiki-thumb"
+                            style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="./Normalization.jpeg"
+                                style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);"
+                                alt="Case Normalization">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">04</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Stop-word Removal</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+
+
+                            <div class="card-detail"><span class="detail-label">Definition</span><span
+                                    class="detail-value card-definition">Deleting very common, uninformative
+                                    words.</span></div>
+                            <div class="card-detail"><span class="detail-label">Purpose</span><span
+                                    class="detail-value">To save
+                                    memory and focus only on words that carry actual meaning.</span></div>
+                            <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                                    class="detail-value">Checks each token against a predefined list (like "the", "is",
+                                    "at")
+                                    and removes matches.</span></div>
+                            <div class="card-detail"><span class="detail-label">Example</span><span
+                                    class="detail-value">"The
+                                    cat is on the roof" \(\rightarrow\) ["cat", "roof"]</span></div>
+                            <div class="card-detail"><span class="detail-label">Advantages</span><span
+                                    class="detail-value">Speeds up training times significantly.</span></div>
+                            <div class="card-detail"><span class="detail-label">Limitations</span><span
+                                    class="detail-value">Can
+                                    destroy sentence structure and context (e.g., removing "not").</span></div>
+                            <div class="card-detail"><span class="detail-label">Applications</span><span
+                                    class="detail-value">Topic modeling and basic spam filters.</span></div>
+
+                        </div>
+                        <div class="wiki-thumb"
+                            style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="./Stopword.jpeg"
+                                style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);"
+                                alt="Stop-word Removal">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">05</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Stemming</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+
+
+                            <div class="card-detail"><span class="detail-label">Definition</span><span
+                                    class="detail-value card-definition">Chopping off the ends of words to find their
+                                    base
+                                    form.</span></div>
+                            <div class="card-detail"><span class="detail-label">Purpose</span><span
+                                    class="detail-value">To
+                                    group variations of a word together (e.g., running, runner \(\rightarrow\)
+                                    run).</span>
+                            </div>
+                            <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                                    class="detail-value">Uses <span class="wiki-tooltip"
+                                        data-tooltip="A set of strictly defined programmable instructions that do not use machine learning.">hardcoded
+                                        rules<a id="cite2" href="#ref2" class="citation">[2]</a></span> (like the Porter
+                                    Stemmer) to blindly remove
+                                    suffixes like "-ing" or "-ed".</span></div>
+                            <div class="card-detail"><span class="detail-label">Example</span><span
+                                    class="detail-value">"studying" \(\rightarrow\) "studi"</span></div>
+                            <div class="card-detail"><span class="detail-label">Advantages</span><span
+                                    class="detail-value">Extremely fast.</span></div>
+                            <div class="card-detail"><span class="detail-label">Limitations</span><span
+                                    class="detail-value">Often creates fake, misspelled words.</span></div>
+                            <div class="card-detail"><span class="detail-label">Applications</span><span
+                                    class="detail-value">Fast document retrieval.</span></div>
+
+                        </div>
+                        <div class="wiki-thumb"
+                            style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="./Stemming.jpeg"
+                                style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);"
+                                alt="Stemming">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">06</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Lemmatization</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Finding the proper, dictionary-verified root of a
+                            word.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">Same as
+                            stemming, but with perfect grammatical accuracy.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Looks at the word and its context (<span class="wiki-tooltip"
+                                data-tooltip="Categorizing words based on their grammatical role, such as Noun, Verb, or Adjective.">noun
+                                vs verb<a id="cite3" href="#ref3" class="citation">[3]</a></span>), then uses a
+                            vocabulary database to find the root.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span
+                            class="detail-value">"better" \(\rightarrow\) "good"</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Output is always a real word, preserving true meaning.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Slower than stemming because it requires dictionary lookups.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Chatbots and text summarization.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">07</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Noise Removal</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Stripping out non-text artifacts from data.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            clean web-scraped data so models don't learn useless symbols.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Uses Regular Expressions (Regex) to delete HTML tags, URLs, or special
+                            characters.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span
+                            class="detail-value">"&lt;p&gt;Click here: link.com!&lt;/p&gt;" \(\rightarrow\) "Click here:
+                            link.com!"</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Prevents garbage data from ruining the model.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span class="detail-value">Can
+                            accidentally remove useful code snippets if analyzing technical data.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Cleaning Twitter data or Wikipedia dumps.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Preprocessing" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">08</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Text Cleaning</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">A broader term that includes fixing typos, expanding
+                            contractions, and handling emojis.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            standardize informal human writing into formal text.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Uses dictionaries to map slang or contractions to formal words.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">"I'm
+                            omw 🚗" \(\rightarrow\) "I am on my way"</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Greatly improves accuracy on social media datasets.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Very manual and specific to the language/culture being analyzed.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Social media sentiment analysis.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Feature Engineering" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">09</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Bag of Words (BoW)</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+                            
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Representing text simply by counting how many times
+                            each word appears.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To turn
+                            text into numbers for basic machine learning.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Creates a vocabulary of all known words, then creates a vector showing
+                            the count of each word in a specific document.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">"it is
+                            what it is" \(\rightarrow\) {"it": 2, "is": 2, "what": 1}</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span class="detail-value">Very
+                            easy to understand and code.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Completely ignores word order and grammar.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Basic email spam detection.</span></div>
+                
+                        </div>
+                        <div class="wiki-thumb" style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAwIDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjAyMTIyIi8+CiAgPHRleHQgeD0iMTMwIiB5PSIxMDAiIGZpbGw9IiM3OWExZmYiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+IlRoZSBxdWljayBicm93biBmb3giPC90ZXh0PgogIDxyZWN0IHg9IjUwIiB5PSIxMzAiIHdpZHRoPSI5MCIgaGVpZ2h0PSI1MCIgZmlsbD0iIzFiMWUyMiIgc3Ryb2tlPSIjNDQ3ZmY1Ii8+CiAgPHRleHQgeD0iNjUiIHk9IjE2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPlRoZTogMTwvdGV4dD4KICA8cmVjdCB4PSIxNTAiIHk9IjEzMCIgd2lkdGg9IjkwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMWIxZTIyIiBzdHJva2U9IiM0NDdmZjUiLz4KICA8dGV4dCB4PSIxNjAiIHk9IjE2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPlF1aWNrOiAxPC90ZXh0PgogIDxyZWN0IHg9IjI1MCIgeT0iMTMwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMWIxZTIyIiBzdHJva2U9IiM0NDdmZjUiLz4KICA8dGV4dCB4PSIyNTUiIHk9IjE2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPkJyb3duOiAxPC90ZXh0Pgo8L3N2Zz4=" style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);" alt="Bag of Words">
+                        </div>
+                    </div>
+            </div>
+
+                <div class="concept-card" data-category="Feature Engineering" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">10</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">N-Grams</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Grouping words together in chunks of N (e.g., <span
+                                class="wiki-tooltip"
+                                data-tooltip="N-grams where N=2 and N=3, representing sequences of two and three adjacent words.">Bigrams<a
+                                    id="cite6" href="#ref6" class="citation">[6]</a></span> =
+                            2 words, Trigrams = 3 words).</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            capture short phrases and local context that BoW misses.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Slides a window of size N across the text to create pairs or
+                            triplets.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">"not
+                            happy" (Bigram) captures the negative sentiment better than "not" and "happy" alone.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Preserves word order for short phrases.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Makes the dataset huge, requiring lots of memory.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Predictive typing on phone keyboards.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Feature Engineering" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">11</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Term Frequency (TF)</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">The raw count of a word in a document, divided by the
+                            total words in that document.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            measure how heavily a document focuses on a specific word.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">\(TF = (\text{count of word in doc}) / (\text{total words in doc})\)
+                        </span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">If
+                            "data" appears 5 times in a 100-word essay, TF is 0.05.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Normalizes counts so long documents don't automatically get higher
+                            scores than short ones.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Gives too much weight to common words like "the".</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Basic keyword density checks.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Feature Engineering" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">12</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Inverse Document Frequency (IDF)</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">A score that measures how rare a word is across all
+                            documents.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            penalize common words and reward unique, specific keywords.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Calculated using a logarithm formula based on total documents divided
+                            by documents containing the target word. Rare words get high scores; common ones approach
+                            zero.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">The
+                            word "the" gets an IDF near 0. The word "photosynthesis" gets a high IDF.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Highlights domain-specific terminology.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Useless on its own without TF.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Building vocabulary lists for specific industries.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Feature Engineering" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">13</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">TF-IDF</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Multiplying TF and IDF together.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To find
+                            the most statistically important words in a document.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">\(TF \times\ IDF) (high occurrences in this document combined with low
+                            overall occurrences across the <span class="wiki-tooltip"
+                                data-tooltip="A large, structured collection of machine-readable texts used for linguistic analysis.">corpus<a id="cite4" href="#ref4" class="citation">[4]</a></span>.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span
+                            class="detail-value">"diabetic" in a medical record: high term frequency in that file, low
+                            document frequency in the database, yielding a high score.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Excellent baseline algorithm for finding relevance without needing a
+                            neural network.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Creates sparse matrices (vectors mostly filled with zeros).</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Google Search ranking and document clustering.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Language Representation" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">14</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">One-Hot Encoding</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+                            
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Representing every word as a vector of zeros, with a
+                            single "1" at the word's index.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">A
+                            simple, binary way to feed categorical words into a computer.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">If vocabulary is ["cat", "dog"], "cat" is [1, 0] and "dog" is [0,
+                            1].</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">A
+                            10,000-word vocabulary means every word is a vector of 9,999 zeros and one 1.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Requires no training or complex math.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Highly inefficient (massive memory waste) and cannot measure
+                            similarities between words.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Baseline models for very small datasets.</span></div>
+                
+                        </div>
+                        <div class="wiki-thumb" style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAwIDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjAyMTIyIi8+CiAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzlhMWZmIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MCIgeT0iOTAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIj5Eb2cgIHwgMSB8IDAgfCAwIHw8L3RleHQ+CiAgPHRleHQgeD0iNjAiIHk9IjE0MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiPkNhdCAgfCAwIHwgMSB8IDAgfDwvdGV4dD4KICA8dGV4dCB4PSI2MCIgeT0iMTkwIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCI+QmlyZCB8IDAgfCAwIHwgMSB8PC90ZXh0Pgo8L3N2Zz4=" style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);" alt="One-Hot Encoding">
+                        </div>
+                    </div>
+            </div>
+
+                <div class="concept-card" data-category="Language Representation" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">15</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Word Embeddings</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+                            
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Dense vectors of numbers where words with similar
+                            meanings have similar numbers.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            solve the inefficiency of One-Hot Encoding and capture actual semantic meaning.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Trains a model to assign continuous decimals to words based on the
+                            company they keep.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span
+                            class="detail-value">Vector("Happy") is mathematically close to Vector("Joy") in
+                            space.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Captures synonyms and relationships perfectly.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Hard to interpret exactly what each number in the vector means.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">All modern deep learning NLP tasks.</span></div>
+                
+                        </div>
+                        <div class="wiki-thumb" style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAwIDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjAyMTIyIi8+CiAgPGxpbmUgeDE9IjUwIiB5MT0iMjUwIiB4Mj0iMzUwIiB5Mj0iMjUwIiBzdHJva2U9IiM3OWExZmYiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSI1MCIgeTE9IjI1MCIgeDI9IjUwIiB5Mj0iNTAiIHN0cm9rZT0iIzc5YTFmZiIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjAiIGZpbGw9IiM0NDdmZjUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIj5LaW5nPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMjAwIiBmaWxsPSIjNDQ3ZmY1IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCI+TWFuPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iMTIwIiBmaWxsPSIjZjU0NDdmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCI+UXVlZW48L3RleHQ+CiAgPHRleHQgeD0iMjUwIiB5PSIyMDAiIGZpbGw9IiNmNTQ0N2YiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIj5Xb21hbjwvdGV4dD4KICA8cGF0aCBkPSJNMTEwLDEzMCBMMTEwLDE4MCIgc3Ryb2tlPSIjZmZmIiBzdHJva2UtZGFzaGFycmF5PSI0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cGF0aCBkPSJNMjYwLDEzMCBMMjYwLDE4MCIgc3Ryb2tlPSIjZmZmIiBzdHJva2UtZGFzaGFycmF5PSI0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cGF0aCBkPSJNMTIwLDExNSBMMjQwLDExNSIgc3Ryb2tlPSIjZmZmIiBzdHJva2UtZGFzaGFycmF5PSI0IiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+" style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);" alt="Word Embeddings">
+                        </div>
+                    </div>
+            </div>
+
+                <div class="concept-card" data-category="Language Representation" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">16</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Word2Vec</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">A specific embedding algorithm developed by Google
+                            using a shallow neural network.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            generate high-quality word embeddings quickly.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Uses <span class="wiki-tooltip"
+                                data-tooltip="Two main Word2Vec architectures: CBOW predicts the center word from context, while Skip-gram predicts context from the center word.">Continuous
+                                Bag of Words (CBOW<a id="cite7" href="#ref7" class="citation">[7]</a></span>, guessing a
+                            target word from context
+                            neighbors) or Skip-gram (predicting neighbors given a word).</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">Can
+                            solve semantic/syntactic analogies: King - Man + Woman = Queen.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Extremely good at capturing semantic analogies.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Assigns the exact same vector to a word regardless of context (e.g.,
+                            "bank" the river and "bank" the building get same numbers).</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Recommendation engines.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Language Representation" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">17</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">FastText</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">An embedding algorithm created by Facebook that breaks
+                            words into character chunks.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            handle typos and rare words that Word2Vec fails on.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Instead of just a single vector for "apple", it creates vectors for
+                            character n-grams like &lt;ap, app, ppl, ple&gt; and sums them.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">Can
+                            generate a decent vector for a typo like "happpy" because it recognizes the "happ" sub-word
+                            chunk.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Solves the Out-of-Vocabulary (OOV) problem.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">High memory usage during training and dictionary lookup.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Analyzing messy datasets (e.g., Twitter or Reddit).</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Language Representation" data-author="Param Maru">
+                    <div class="card-header"><span class="concept-num">18</span><span class="author-badge">Param
+                            Maru</span></div>
+                    <h3 class="card-title">Contextual Embeddings</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Advanced embeddings that change dynamically based on
+                            the whole sentence.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            solve the problem of polysemy (words with multiple meanings depending on context).</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Uses <span class="wiki-tooltip"
+                                data-tooltip="Bidirectional Long Short-Term Memory: A neural network that reads data forwards and backwards."><span
+                                    class="wiki-tooltip"
+                                    data-tooltip="Bidirectional LSTM: a neural network architecture that processes context in both forward and backward directions.">Bi-LSTM<a
+                                        id="cite5" href="#ref5" class="citation">[5]</a></span><a id="cite5"
+                                    href="#ref5" class="citation">[5]</a></span> (<span class="wiki-tooltip"
+                                data-tooltip="ELMo uses Bi-LSTMs for contextual representations, while BERT uses Bidirectional Transformers.">ELMo<a
+                                    id="cite8" href="#ref8" class="citation">[8]</a></span>) or self-attention
+                            networks (BERT) to read the full
+                            context in both directions before compiling the word's vector representation.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">Vector
+                            for "apple" in "I ate an apple" is completely different from "I bought Apple stock."</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Massive accuracy increase in understanding actual user intent.</span>
+                    </div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Highly computationally expensive and slow compared to static
+                            embeddings.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Advanced question-answering systems and search semantic engines.</span>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-category="Language Models" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">19</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Statistical Language Models</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Models that use probability and counting to guess the
+                            next word in a sequence.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">Early
+                            attempts at text generation, autocomplete, and speech recognition decoding
+                            assistance.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Uses N-Gram counts to calculate conditional <span class="wiki-tooltip"
+                                data-tooltip="Conditional probabilities assuming that the next state depends only on the current state (Markov property).">Markov
+                                probabilities<a id="cite9" href="#ref9" class="citation">[9]</a></span>:
+                            \(P(W_n | W_{n-1}, ..., W_1)\).</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">If
+                            "Good" is followed by "Morning" 80% of the time, the model predicts "Morning".</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Blazingly fast, lightweight, and easy to run on cheap commodity
+                            hardware.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Cannot understand long-term context (e.g. if the subject was mentioned
+                            3 sentences ago, it forgets).</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Simple autocomplete typing suggest on phone keyboard.</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Language Models" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">20</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Neural Language Models</h3>
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">Models using Deep Learning (<span class="wiki-tooltip"
+                                data-tooltip="Recurrent Neural Networks and Long Short-Term Memory networks, designed for sequential processing.">RNNs<a
+                                    id="cite10" href="#ref10" class="citation">[10]</a></span>, LSTMs) to predict
+                            sequence probabilities.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            capture longer context windows and overcome statistical sparsity.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">Text flows through hidden neural network layers (feedback loop) that
+                            maintain internal memory of preceding sequences.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span class="detail-value">"I grew
+                            up in Paris, so I speak fluent ___" \(\rightarrow\) predicts "French" because hidden state
+                            retains the memory of "Paris".</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span class="detail-value">Much
+                            better context retention, handles complex grammar and syntax patterns.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Sequential processing makes training on large datasets slow and GPU
+                            intensive.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">Machine translation (Google Translate engine architectures around
+                            2016).</span></div>
+                </div>
+
+                <div class="concept-card" data-category="Language Models" data-author="Darpan Kotak">
+                    <div class="card-header"><span class="concept-num">21</span><span class="author-badge">Darpan
+                            Kotak</span></div>
+                    <h3 class="card-title">Transformer-based Representations</h3>
+                    <div style="display: flex; gap: 1.5rem; width: 100%;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.8rem;">
+                            
+                    <div class="card-detail"><span class="detail-label">Definition</span><span
+                            class="detail-value card-definition">State-of-the-art architectures using "<span
+                                class="wiki-tooltip"
+                                data-tooltip="An attention mechanism relating different positions of a single sequence in order to compute a representation of the sequence.">Self-Attention<a
+                                    id="cite11" href="#ref11" class="citation">[11]</a></span>"
+                            to process whole sentences at once.</span></div>
+                    <div class="card-detail"><span class="detail-label">Purpose</span><span class="detail-value">To
+                            achieve human-like understanding and generation of text.</span></div>
+                    <div class="card-detail"><span class="detail-label">Working Principle</span><span
+                            class="detail-value">The self-attention mechanism calculates relevance scores between every
+                            word pair in parallel, bypassing the sequential bottleneck of RNNs.</span></div>
+                    <div class="card-detail"><span class="detail-label">Example</span><span
+                            class="detail-value">Architectures like BERT (encoder-only) representing queries, or <span
+                                class="wiki-tooltip"
+                                data-tooltip="Generative Pre-trained Transformer: a decoder-only architecture designed for generative text tasks.">GPT
+                                (decoder-only)<a id="cite12" href="#ref12" class="citation">[12]</a></span> generating
+                            essays.</span></div>
+                    <div class="card-detail"><span class="detail-label">Advantages</span><span
+                            class="detail-value">Highly parallelizable (scalable to billions of parameters on GPUs) and
+                            record-setting accuracies.</span></div>
+                    <div class="card-detail"><span class="detail-label">Limitations</span><span
+                            class="detail-value">Requires enormous amounts of training data, energy, and expensive
+                            server clusters.</span></div>
+                    <div class="card-detail"><span class="detail-label">Applications</span><span
+                            class="detail-value">ChatGPT, Claude, GitHub Copilot, and state-of-the-art information
+                            extraction.</span></div>
+                
+                        </div>
+                        <div class="wiki-thumb" style="flex: 0 0 auto; max-width: 45%; min-width: 300px; background-color: var(--bg-primary); border: 1px solid var(--border); padding: 4px; text-align: center;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAwIDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjAyMTIyIi8+CiAgPHRleHQgeD0iMTUwIiB5PSIxNTAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0Ij5CYW5rPC90ZXh0PgogIDx0ZXh0IHg9IjUwIiB5PSI3MCIgZmlsbD0iIzc5YTFmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiPlJpdmVyPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iNzAiIGZpbGw9IiNmNTQ0N2YiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4Ij5Nb25leTwvdGV4dD4KICA8cGF0aCBkPSJNODAsODAgUTEyMCwxMTAgMTUwLDEzMCIgc3Ryb2tlPSIjNzlhMWZmIiBzdHJva2Utd2lkdGg9IjYiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMjYwLDgwIFEyMTAsMTEwIDE4MCwxMzAiIHN0cm9rZT0iI2Y1NDQ3ZiIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==" style="width: 100%; height: auto; display: block; border: 1px solid var(--border-light);" alt="Transformer-based Representations">
+                        </div>
+                    </div>
+            </div>
+            </div>
+        </section>
+
+        <section id="section-comparison">
+            <h2>Comparative Analysis</h2>
+            <div style="display: flex; flex-direction: column; gap: 2.5rem;">
+                <div class="comparison-block">
+                    <h3 class="diagram-title" style="margin-bottom: 1rem;">1. Stemming vs. Lemmatization (Darpan Kotak)
+                    </h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Stemming</th>
+                                    <th>Lemmatization</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Working Mechanism</strong></td>
+                                    <td>Hardcoded rules to chop suffixes.</td>
+                                    <td>Dictionary lookup to find the linguistic root.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computational Complexity</strong></td>
+                                    <td>Fast. \(O(1)\) constant time.</td>
+                                    <td>Slower. Requires Part-of-Speech tagging and database parsing.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Strengths</strong></td>
+                                    <td>Saves disk and memory resources; requires no database.</td>
+                                    <td>Always outputs real, linguistically valid root words.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaknesses</strong></td>
+                                    <td>Over-stemming and under-stemming create gibberish tokens.</td>
+                                    <td>Slower execution times due to dictionary lookups.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suitable Applications</strong></td>
+                                    <td>Search engine indexers, simple retrieval systems.</td>
+                                    <td>Conversational AI, machine translation, chatbots.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comparison-block">
+                    <h3 class="diagram-title" style="margin-bottom: 1rem;">2. Term Frequency (TF) vs. TF-IDF (Param
+                        Maru)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Term Frequency (TF)</th>
+                                    <th>TF-IDF</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Working Mechanism</strong></td>
+                                    <td>Counts raw frequency of a word in a specific document.</td>
+                                    <td>Multiplies term frequency by the word's rareness across the entire corpus.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computational Complexity</strong></td>
+                                    <td>Very Low. Single pass over the document.</td>
+                                    <td>Low. Requires calculation of corpus-wide statistics.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Strengths</strong></td>
+                                    <td>Simple to compute; good baseline for single documents.</td>
+                                    <td>Accurately highlights distinct, domain-specific keywords.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaknesses</strong></td>
+                                    <td>Inflates the importance of common stopwords like "the", "is".</td>
+                                    <td>Produces large, sparse, high-dimensional arrays.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suitable Applications</strong></td>
+                                    <td>Word clouds, simple document-level filters.</td>
+                                    <td>Search engine search indexing, automated article taggers.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comparison-block">
+                    <h3 class="diagram-title" style="margin-bottom: 1rem;">3. Word2Vec vs. FastText (Param Maru)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Word2Vec</th>
+                                    <th>FastText</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Working Mechanism</strong></td>
+                                    <td>Assigns continuous dense vectors to whole words.</td>
+                                    <td>Assigns vectors to sub-word character chunks and sums them.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computational Complexity</strong></td>
+                                    <td>Moderate. Fast shallow neural net training.</td>
+                                    <td>High. Extensive character n-gram dictionary overhead.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Strengths</strong></td>
+                                    <td>Excellent semantic analogies and syntax mapping for clean text.</td>
+                                    <td>Handles typos, slang, and Out-Of-Vocabulary (OOV) words easily.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaknesses</strong></td>
+                                    <td>Fails entirely on unseen words (returns Null or random vector).</td>
+                                    <td>Consumes massive RAM and disk storage during training.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suitable Applications</strong></td>
+                                    <td>General classifier baselines, recommendation engines.</td>
+                                    <td>Social media text parsing (Twitter/Reddit), typo-prone datasets.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comparison-block">
+                    <h3 class="diagram-title" style="margin-bottom: 1rem;">4. Statistical vs. Neural Language Models
+                        (Darpan Kotak)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Statistical LMs (N-Grams)</th>
+                                    <th>Neural LMs (RNNs/LSTMs/Transformers)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Working Mechanism</strong></td>
+                                    <td>Markov chain frequency calculations on short token sequences.</td>
+                                    <td>Passes inputs through weights to form continuous hidden representations.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computational Complexity</strong></td>
+                                    <td>High RAM for large N-grams, but fast CPU mathematical lookups.</td>
+                                    <td>Extremely high, requiring active GPU training.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Strengths</strong></td>
+                                    <td>Highly predictable, lightweight, and mathematically transparent.</td>
+                                    <td>Retains long-range dependencies and complex sentence structures.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaknesses</strong></td>
+                                    <td>No concept of synonyms or out-of-order syntax relevance.</td>
+                                    <td>Acts as a "black box"; prone to hallucinating facts.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suitable Applications</strong></td>
+                                    <td>Basic phone keyboard auto-completions, spell checkers.</td>
+                                    <td>Machine translations, automated text summarizing/generation.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comparison-block">
+                    <h3 class="diagram-title" style="margin-bottom: 1rem;">5. One-Hot Encoding vs. Word Embeddings
+                        (Darpan Kotak)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>One-Hot Encoding</th>
+                                    <th>Word Embeddings (e.g. Word2Vec)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Working Mechanism</strong></td>
+                                    <td>Sparse binary vector matching vocabulary indices.</td>
+                                    <td>Dense continuous vectors derived through neural contexts.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computational Complexity</strong></td>
+                                    <td>Zero (simple index lookups).</td>
+                                    <td>Moderate to High. Requires model loading and calculations.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Strengths</strong></td>
+                                    <td>Simple to understand, no pre-training, fast for tiny vocabularies.</td>
+                                    <td>Captures profound semantic and syntactic associations.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weaknesses</strong></td>
+                                    <td>Extreme matrix sparsity; absolute lack of semantic dimension.</td>
+                                    <td>Complex vector interpretations; requires high pre-training efforts.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Suitable Applications</strong></td>
+                                    <td>Baseline classifiers, simple categorical encoding.</td>
+                                    <td>Modern text taggers, deep translation models, semantic search.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-diagrams">
+            <h2>Workflow Diagrams</h2>
+            <div class="diagram-card">
+                <h3 class="diagram-title">1. Complete Text Preprocessing Pipeline (Darpan Kotak)</h3>
+                <pre class="mermaid">
+                    graph TD
+                        A([Raw Unstructured Text]) --> B[Noise Removal]
+                        B -->|Strip HTML &amp; URLs| C[Case Normalization]
+                        C -->|Convert to Lowercase| D[Sentence Segmentation]
+                        D -->|Split on Punctuation| E[Tokenization]
+                        E -->|Break into Words/Tokens| F{Filter Stop-words?}
+                        
+                        F -->|Yes| G[Remove 'the', 'is', 'and']
+                        F -->|No| H{Choose Morphological Strategy}
+                        G --> H
+                        
+                        H -->|Prioritize Speed| I[Stemming]
+                        H -->|Prioritize Grammar| J[Lemmatization]
+                        
+                        I --> K([Cleaned Token Sequence])
+                        J --> K
+                </pre>
+            </div>
+
+            <div class="diagram-card">
+                <h3 class="diagram-title">2. Feature Engineering Pipeline (Param Maru)</h3>
+                <pre class="mermaid">
+                    graph LR
+                        A([Cleaned Tokens]) --> B{Select Feature Extraction}
+                        
+                        B -->|Basic Counts| C[Bag of Words]
+                        B -->|Keyword Importance| D[TF-IDF Weighting]
+                        B -->|Local Phrase Context| E[N-Gram Extraction]
+                        
+                        C --> F([Sparse Feature Matrix])
+                        D --> F
+                        E --> F
+                        
+                        F --> G([Machine Learning Model Input])
+                </pre>
+            </div>
+
+            <div class="diagram-card">
+                <h3 class="diagram-title">3. Text-to-Vector Transformation Process (Param Maru)</h3>
+                <pre class="mermaid">
+                    graph TD
+                        A([Input Vocabulary]) --> B{Select Representation Mode}
+                        
+                        B -->|Discrete / Sparse| C[One-Hot Encoding]
+                        B -->|Continuous / Dense| D[Word Embeddings]
+                        
+                        D -->|Whole Word Target| E[Word2Vec]
+                        D -->|Sub-word Target| F[FastText]
+                        D -->|Dynamic Context| G[Contextual Embeddings]
+                        
+                        C --> H([Vector Space Output])
+                        E --> H
+                        F --> H
+                        G --> H
+                </pre>
+            </div>
+        </section>
+
+        <section id="section-applications">
+            <h2>Real-World Applications</h2>
+            <div class="app-grid">
+                <div class="app-card">
+                    <h3 class="app-title">1. Search Engines (e.g., Google, Bing)</h3>
+                    <p><strong>Relevant NLP concepts:</strong> Tokenization, Lemmatization, TF-IDF.</p>
+                    <p><strong>Why they are needed:</strong> When people type a search query, they often use messy,
+                        informal language. The search engine has to break the query down into tokens, find the root
+                        words using lemmatization (so a search for "running" also matches pages with "run"), and use
+                        TF-IDF to figure out which keywords are actually important versus generic filler words.</p>
+                    <p><strong>Expected benefits:</strong> Users get highly relevant search results almost instantly,
+                        even if they misspell words or use different verb tenses.</p>
+                </div>
+                <div class="app-card">
+                    <h3 class="app-title">2. Customer Support Chatbots</h3>
+                    <p><strong>Relevant NLP concepts:</strong> Sentence Segmentation, Contextual Embeddings.</p>
+                    <p><strong>Why they are needed:</strong> Chatbots need to understand the intent behind a customer's
+                        message, not just match keywords. Contextual embeddings allow the bot to understand that "my app
+                        froze" and "the application is unresponsive" mean the exact same thing, even though the words
+                        are different.</p>
+                    <p><strong>Expected benefits:</strong> Companies can provide automated, 24/7 customer support that
+                        actually resolves issues instead of just giving generic, frustrating replies.</p>
+                </div>
+                <div class="app-card">
+                    <h3 class="app-title">3. <span class="wiki-tooltip"
+                            data-tooltip="The use of NLP, statistics, and text analysis to identify, extract, or quantify subjective information and emotion.">Sentiment
+                            Analysis<a id="cite15" href="#ref15" class="citation">[15]</a></span> on Social Media</h3>
+                    <p><strong>Relevant NLP concepts:</strong> Noise Removal, Bag of Words, N-Grams.</p>
+                    <p><strong>Why they are needed:</strong> Social media text is full of emojis, hashtags, and links
+                        that need to be cleaned out using noise removal. Once clean, N-grams are crucial here to capture
+                        phrases like "not good"; if we only used individual words, the model might see "good" and
+                        mistakenly think the review is positive.</p>
+                    <p><strong>Expected benefits:</strong> Brands can track public opinion in real-time, helping them
+                        react quickly to bad PR or product complaints.</p>
+                </div>
+                <div class="app-card">
+                    <h3 class="app-title">4. <span class="wiki-tooltip"
+                            data-tooltip="The use of software to translate text or speech from one natural language to another.">Machine
+                            Translation<a id="cite14" href="#ref14" class="citation">[14]</a></span> (e.g., Google
+                        Translate)</h3>
+                    <p><strong>Relevant NLP concepts:</strong> Sub-word Tokenization, Word2Vec, Transformer-based
+                        Representations.</p>
+                    <p><strong>Why they are needed:</strong> Languages have completely different sentence structures.
+                        Translators need word embeddings to map the semantic meaning of an English word to a latent
+                        mathematical space, and then map that same meaning to a French or Hindi word.</p>
+                    <p><strong>Expected benefits:</strong> Breaking down global language barriers for international
+                        trade, travel, and cross-cultural communication.</p>
+                </div>
+                <div class="app-card">
+                    <h3 class="app-title">5. Automated Text Summarization</h3>
+                    <p><strong>Relevant NLP concepts:</strong> Stop-word Removal, TF-IDF, Neural Language Models.</p>
+                    <p><strong>Why they are needed:</strong> Legal documents and medical records are overwhelmingly
+                        long. <span class="wiki-tooltip"
+                            data-tooltip="Selecting and combining key sentences directly from the source text to generate a summary.">Extractive
+                            summarization<a id="cite13" href="#ref13" class="citation">[13]</a></span> uses TF-IDF to
+                        find the most statistically significant sentences
+                        in a document and pulls them out to create a quick summary, filtering out the fluff.</p>
+                    <p><strong>Expected benefits:</strong> Saves doctors, lawyers, and researchers hours of reading time
+                        by condensing 50-page reports into one-page executive summaries.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-insights">
+            <h2>Research and Industry Insights</h2>
+            <div class="app-grid" style="grid-template-columns: 1fr;">
+                <div class="insight-layout"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="overview-card">
+                        <h3 style=" font-size: 1.3em; color: var(--accent); margin-bottom: 1rem;">
+                            Research Developments</h3>
+                        <ul
+                            style="padding-left: 1.25rem; font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <li><strong><span class="wiki-tooltip"
+                                        data-tooltip="Reducing neural network size and latency by representing weights with lower-precision data formats.">Model
+                                        Quantization<a id="cite16" href="#ref16" class="citation">[16]</a></span> for
+                                    <span class="wiki-tooltip"
+                                        data-tooltip="Running machine learning algorithms locally on hardware devices rather than cloud servers.">Edge
+                                        AI<a id="cite17" href="#ref17" class="citation">[17]</a></span>:</strong> As
+                                language models grow to billions of
+                                parameters, they require massive data centers to run. Researchers are currently focused
+                                on "Quantization"—mathematically compressing these giant models (e.g., converting 16-bit
+                                numbers to 4-bit) without losing grammatical accuracy. This allows powerful NLP to run
+                                locally on low-power devices like smartphones, reducing cloud computing costs and saving
+                                energy.</li>
+                            <li><strong>Improved Multilingual Sub-word Tokenization:</strong> Historically, NLP models
+                                were biased toward English and relied on simple space-based tokenization. Current
+                                research is heavily focused on sub-word tokenization algorithms (like Byte-Pair
+                                Encoding) designed for continuous-script or morphologically rich languages like Mandarin
+                                and Hindi. By breaking words into frequent character chunks, these tokenizers
+                                drastically reduce "Out-of-Vocabulary" errors and create more inclusive global models.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="overview-card">
+                        <h3 style=" font-size: 1.3em; color: var(--accent); margin-bottom: 1rem;">
+                            Industrial Applications</h3>
+                        <ul
+                            style="padding-left: 1.25rem; font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <li><strong>Automated Medical Coding:</strong> Hospitals generate massive amounts of
+                                unstructured data through handwritten prescriptions and typed clinical notes. The
+                                industry now deploys NLP pipelines using medical lemmatization to scan these documents
+                                automatically. The software extracts patient symptoms and diagnoses, mapping them
+                                directly to standardized insurance billing codes, which drastically reduces
+                                administrative bottlenecks and human billing errors.</li>
+                            <li><strong>Financial Compliance Monitoring:</strong> Banks must monitor millions of daily
+                                employee emails and chat logs to prevent insider trading. Financial institutions utilize
+                                <span class="wiki-tooltip"
+                                    data-tooltip="Information extraction task to identify entities like people, organizations, or locations in text.">Named
+                                    Entity Recognition (NER)<a id="cite18" href="#ref18"
+                                        class="citation">[18]</a></span> combined with contextual embeddings to
+                                automatically scan
+                                these communications. NER instantly identifies specific companies, stock tickers, and
+                                employee names from unstructured text, allowing the system to flag high-risk
+                                conversations in real-time and redact sensitive information before compliance is
+                                breached.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <h3 style=" font-size: 1.3em; color: var(--accent); margin-bottom: 0.5rem;">
+                        Framework Highlight</h3>
+                    <p style="font-size: 0.95rem; margin-bottom: 1rem;"><strong>Open-Source Tool:</strong> <span
+                            class="wiki-tooltip"
+                            data-tooltip="A community platform hosting open-source AI models, datasets, and high-level wrappers for NLP pipelines.">Hugging
+                            Face<a id="cite19" href="#ref19" class="citation">[19]</a></span>
+                        (<code>transformers</code> &amp; <code>tokenizers</code> libraries)</p>
+                    <p style="font-size: 0.95rem; line-height: inherit; color: var(--text-secondary);">
+                        <strong>Summary:</strong> The landscape of natural language processing has shifted from building
+                        complex mathematical models from scratch to utilizing collaborative, open-source ecosystems.
+                        Frameworks like Hugging Face are highly relevant because they democratize AI; they allow
+                        computer engineering students and small startups to download pre-trained, state-of-the-art
+                        language models and deploy them with just a few lines of code. This shift means the modern
+                        industry focuses less on proving the underlying math, and more on practical
+                        engineering—specifically, how to efficiently clean data, optimize feature pipelines for
+                        visualization, and compress these large open-source models so they can run sustainably in
+                        real-world business environments.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-sustainability">
+            <h2>Sustainability & Societal Impact</h2>
+            <div class="overview-card" style="line-height: 1.8;">
+                <p style="margin-bottom: 1rem;"><strong>Empowering Society Through <span class="wiki-tooltip"
+                            data-tooltip="Provisions to make language, information, and tools easy to find and understand for all users.">Language
+                            Accessibility<a id="cite21" href="#ref21" class="citation">[21]</a></span>:</strong>
+                    Natural Language Processing is doing much more than just making software smarter; it is actively
+                    helping to build a more inclusive and equitable society. One of the most profound impacts of NLP is
+                    its contribution to <span class="wiki-tooltip"
+                        data-tooltip="Computational technologies adjusted and translated to support native, smaller regional dialects.">Regional
+                        Language Technologies<a id="cite20" href="#ref20" class="citation">[20]</a></span> and Language
+                    Accessibility. A massive portion of
+                    the internet is currently in English, which isolates millions of people in developing nations from
+                    vital digital resources. By building robust text preprocessing pipelines and word embeddings for
+                    underrepresented languages—like Marathi, Tamil, or Swahili—developers can provide rural populations
+                    with critical <span class="wiki-tooltip"
+                        data-tooltip="Administrative, agricultural, or educational services delivered online by governments to citizens.">Citizen
+                        Services<a id="cite22" href="#ref22" class="citation">[22]</a></span>. This allows a local
+                    farmer to access weather data, market prices,
+                    and government aid portals entirely in their native tongue.</p>
+                <p style="margin-bottom: 1rem;"><strong><span class="wiki-tooltip"
+                            data-tooltip="A movement to enable quality education for remote, disabled, or marginalized students.">Educational
+                            Inclusion<a id="cite23" href="#ref23" class="citation">[23]</a></span> &amp; Assistive
+                        Tech:</strong>
+                    Furthermore, NLP is a major driver of Educational Inclusion. With accurate machine translation and
+                    text summarization, students living in remote areas can access top-tier educational materials,
+                    research papers, and books from anywhere in the world. <span class="wiki-tooltip"
+                        data-tooltip="Hardware and software that helper individuals with disabilities execute tasks autonomously.">Assistive
+                        Technologies<a id="cite24" href="#ref24" class="citation">[24]</a></span> powered by NLP, such
+                    as screen readers and predictive text, are also life-changing for visually impaired individuals or
+                    those with motor disabilities, giving them the independence to navigate the digital world
+                    seamlessly.</p>
+                <p style="margin-bottom: 1rem;"><strong>Environmental Sustainability &amp; Green Computing:</strong>
+                    From an environmental
+                    standpoint, the concepts learned in Week 1 are critical for <span class="wiki-tooltip"
+                        data-tooltip="Eco-friendly use and development of hardware and software (in NLP, training lightweight models to save power).">green
+                        computing<a id="cite25" href="#ref25" class="citation">[25]</a></span>. Training massive AI
+                    models requires vast data centers that consume enormous amounts of electricity, contributing to a
+                    high carbon footprint. This is where smart feature engineering and text preprocessing become
+                    essential. By systematically removing noise and stop-words, and using efficient vectorization
+                    techniques like TF-IDF, engineers can drastically shrink the size of datasets. Processing smaller,
+                    cleaner data means models train faster and use significantly less energy. By prioritizing these
+                    efficient coding practices, we can ensure that artificial intelligence drives societal progress
+                    without depleting the planet's environmental resources.</p>
+                <p><strong>Alignment with UN Sustainable Development Goals:</strong> Ultimately, these NLP advancements
+                    directly support several United Nations Sustainable Development Goals. By breaking down language
+                    barriers and expanding digital access to marginalized communities, Regional Language Technologies
+                    champion SDG 10 (Reduced Inequalities) and SDG 9 (Industry, Innovation and Infrastructure).
+                    Furthermore, assistive tools and global translation pipelines directly advance SDG 4 (Quality
+                    Education) by democratizing knowledge. Finally, prioritizing efficient text preprocessing and
+                    lightweight feature engineering over massive compute power aligns directly with SDG 13 (Climate
+                    Action), ensuring the AI industry grows sustainably.</p>
+            </div>
+        </section>
+
+        <section id="section-reflections">
+            <h2>Individual Reflections</h2>
+            <div class="reflections-container">
+                <div class="reflection-card">
+                    <h3 class="reflection-author">Darpan Kotak</h3>
+                    <p
+                        style="font-size: 0.95rem; line-height: inherit; color: var(--text-secondary);  margin-bottom: 1rem;">
+                        "Before diving into this repository, I always viewed data processing through the lens of numbers
+                        and spreadsheets—like the quantitative work I’ve done with Python and Power BI. Moving to NLP
+                        made me realize that raw human language is completely unstructured and actually requires a lot
+                        of forceful cleaning before a computer can do anything with it."
+                    </p>
+                    <p style="font-size: 0.95rem; line-height: inherit; color: var(--text-secondary);">
+                        Writing out the steps for Tokenization and Stemming was a big "aha" moment for me; it connected
+                        our theoretical computer science concepts directly to modern AI engineering. Creating the
+                        workflow diagrams helped me visualize NLP as an assembly line: if you mess up the noise removal
+                        at the start, your final machine learning model will just learn garbage. I’m really looking
+                        forward to applying Word2Vec to real datasets to see how it mathematically groups synonyms
+                        together.
+                    </p>
+                </div>
+                <div class="reflection-card">
+                    <h3 class="reflection-author">Param Maru</h3>
+                    <p
+                        style="font-size: 0.95rem; line-height: inherit; color: var(--text-secondary);  margin-bottom: 1rem;">
+                        "My main focus for this project was on the feature engineering side, specifically how we turn
+                        words into numbers. Researching TF-IDF was really interesting because the math behind it makes
+                        so much practical sense."
+                    </p>
+                    <p style="font-size: 0.95rem; line-height: inherit; color: var(--text-secondary);">
+                        It’s fascinating how simply multiplying the term frequency by the inverse document frequency
+                        naturally filters out boring filler words and highlights the actual core subject of a document.
+                        Comparing TF-IDF with simple Bag of Words showed me that you don't always need complex neural
+                        networks to solve a problem; sometimes, applying basic statistics does the job perfectly and
+                        saves a lot of computing power. Building out the feature extraction pipeline really solidified
+                        my understanding of how critical it is to choose the right mathematical representation for the
+                        specific problem you are trying to solve.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-matrix">
+            <h2>Contribution Matrix</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Area</th>
+                            <th>Darpan Kotak</th>
+                            <th>Param Maru</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Section A (Concepts)</strong></td>
+                            <td>Text Preprocessing (All 8)<br>Language Models (All 3)</td>
+                            <td>Feature Engineering (All 5)<br>Language Representation (All 5)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Section B (Comparisons)</strong></td>
+                            <td>Stemming vs Lemmatization<br>Statistical vs Neural LMs<br>One-Hot vs Word Embeddings
+                            </td>
+                            <td>TF vs TF-IDF<br>Word2Vec vs FastText</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Section C (Workflows)</strong></td>
+                            <td>Text Preprocessing Pipeline</td>
+                            <td>Feature Engineering Pipeline<br>Text-to-Vector Process</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sections D, E & F</strong></td>
+                            <td>Reflections, Applications</td>
+                            <td>Reflections, Research & Sustainability</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td>17 <strong>(50%)</strong></td>
+                            <td>17 <strong>(50%)</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="section-references">
+            <h2>Academic References & Citations</h2>
+            <div class="overview-card">
+                <ol class="citations-list">
+                    <li id="ref1"><a href="#cite1">↩</a> <strong>Hunston & Sinclair (2000)</strong>. <a
+                            href="https://doi.org/10.1075/ijcl.5.1.04hun" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Local_grammar" target="_blank">Wikipedia</a></li>
+                    <li id="ref2"><a href="#cite2">↩</a> <strong>Hayes-Roth (1985)</strong>. <a
+                            href="https://doi.org/10.1109/MC.1985.1662768" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Rule-based_system" target="_blank">Wikipedia</a></li>
+                    <li id="ref3"><a href="#cite3">↩</a> <strong>Schmid (1994)</strong>. <a
+                            href="https://www.cis.uni-muenchen.de/~schmid/tools/Treetagger/data/tree-tagger1.pdf"
+                            target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Part-of-speech_tagging" target="_blank">Wikipedia</a>
+                    </li>
+                    <li id="ref4"><a href="#cite4">↩</a> <strong>Francis & Kucera (1979)</strong>. <a
+                            href="https://en.wikipedia.org/wiki/Brown_Corpus" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Text_corpus" target="_blank">Wikipedia</a></li>
+                    <li id="ref5"><a href="#cite5">↩</a> <strong>Hochreiter & Schmidhuber (1997)</strong>. <a
+                            href="doi.org/10.1162/neco.1997.9.8.1735" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Long_short-term_memory" target="_blank">Wikipedia</a>
+                    </li>
+                    <li id="ref6"><a href="#cite6">↩</a> <strong>Cavnar & Trenkle (1994)</strong>. <a
+                            href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.21.3248"
+                            target="_blank">Resource / DOI</a> | <a href="https://en.wikipedia.org/wiki/N-gram"
+                            target="_blank">Wikipedia</a></li>
+                    <li id="ref7"><a href="#cite7">↩</a> <strong>Mikolov et al. (2013)</strong>. <a
+                            href="https://arxiv.org/abs/1301.3781" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Word2vec" target="_blank">Wikipedia</a></li>
+                    <li id="ref8"><a href="#cite8">↩</a> <strong>Devlin et al. (2018)</strong>. <a
+                            href="https://arxiv.org/abs/1810.04805" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/BERT_(language_model" target="_blank">Wikipedia</a></li>
+                    <li id="ref9"><a href="#cite9">↩</a> <strong>Markov (1913)</strong>. <a
+                            href="https://en.wikipedia.org/wiki/Andrey_Markov" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Markov_chain" target="_blank">Wikipedia</a></li>
+                    <li id="ref10"><a href="#cite10">↩</a> <strong>Jordan (1986)</strong>. <a
+                            href="https://doi.org/10.1016/B978-1-4832-1447-4.50024-X" target="_blank">Resource / DOI</a>
+                        | <a href="https://en.wikipedia.org/wiki/Recurrent_neural_network" target="_blank">Wikipedia</a>
+                    </li>
+                    <li id="ref11"><a href="#cite11">↩</a> <strong>Vaswani et al. (2017)</strong>. <a
+                            href="https://arxiv.org/abs/1706.03762" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Attention_(machine_learning"
+                            target="_blank">Wikipedia</a></li>
+                    <li id="ref12"><a href="#cite12">↩</a> <strong>Radford et al. (2018)</strong>. <a
+                            href="https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf"
+                            target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Generative_pre-trained_transformer"
+                            target="_blank">Wikipedia</a></li>
+                    <li id="ref13"><a href="#cite13">↩</a> <strong>Luhn (1958)</strong>. <a
+                            href="https://doi.org/10.1147/rd.22.0159" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Automatic_summarization#Extraction-based_summarization"
+                            target="_blank">Wikipedia</a></li>
+                    <li id="ref14"><a href="#cite14">↩</a> <strong>Weaver (1949)</strong>. <a
+                            href="https://en.wikipedia.org/wiki/Weaver_Memorandum" target="_blank">Resource / DOI</a> |
+                        <a href="https://en.wikipedia.org/wiki/Machine_translation" target="_blank">Wikipedia</a>
+                    </li>
+                    <li id="ref15"><a href="#cite15">↩</a> <strong>Pang & Lee (2008)</strong>. <a
+                            href="https://doi.org/10.1561/1500000011" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Sentiment_analysis" target="_blank">Wikipedia</a></li>
+                    <li id="ref16"><a href="#cite16">↩</a> <strong>Han et al. (2015)</strong>. <a
+                            href="https://arxiv.org/abs/1510.00149" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Model_compression#Quantization"
+                            target="_blank">Wikipedia</a></li>
+                    <li id="ref17"><a href="#cite17">↩</a> <strong>Shi et al. (2016)</strong>. <a
+                            href="https://doi.org/10.1109/JIOT.2016.2579198" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Edge_computing" target="_blank">Wikipedia</a></li>
+                    <li id="ref18"><a href="#cite18">↩</a> <strong>Lample et al. (2016)</strong>. <a
+                            href="https://arxiv.org/abs/1603.01360" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Named-entity_recognition" target="_blank">Wikipedia</a>
+                    </li>
+                    <li id="ref19"><a href="#cite19">↩</a> <strong>Wolf et al. (2020)</strong>. <a
+                            href="https://arxiv.org/abs/1910.03771" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Hugging_Face" target="_blank">Wikipedia</a></li>
+                    <li id="ref20"><a href="#cite20">↩</a> <strong>Joshi et al. (2020)</strong>. <a
+                            href="https://arxiv.org/abs/2003.02989" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Language_technology" target="_blank">Wikipedia</a></li>
+                    <li id="ref21"><a href="#cite21">↩</a> <strong>Shneiderman (2000)</strong>. <a
+                            href="https://doi.org/10.1145/335190.335198" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Accessibility" target="_blank">Wikipedia</a></li>
+                    <li id="ref22"><a href="#cite22">↩</a> <strong>Layne & Lee (2001)</strong>. <a
+                            href="https://doi.org/10.1016/S0740-624X(01" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/E-governance" target="_blank">Wikipedia</a></li>
+                    <li id="ref23"><a href="#cite23">↩</a> <strong>UNESCO (2009)</strong>. <a
+                            href="https://unesdoc.unesco.org/ark:/48223/pf0000177849" target="_blank">Resource / DOI</a>
+                        | <a href="https://en.wikipedia.org/wiki/Inclusive_education" target="_blank">Wikipedia</a></li>
+                    <li id="ref24"><a href="#cite24">↩</a> <strong>Bhowmick & Hazarika (2017)</strong>. <a
+                            href="https://doi.org/10.1016/j.bspc.2017.06.012" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Assistive_technology" target="_blank">Wikipedia</a></li>
+                    <li id="ref25"><a href="#cite25">↩</a> <strong>Strubell et al. (2019)</strong>. <a
+                            href="https://arxiv.org/abs/1906.02243" target="_blank">Resource / DOI</a> | <a
+                            href="https://en.wikipedia.org/wiki/Green_computing" target="_blank">Wikipedia</a></li>
+                </ol>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026. Shah & Anchor Kutchhi Engineering College. Developed for NLP Course CMCORIPE301.1.</p>
+        </footer>
+    </main>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const themeBtnText = document.getElementById('theme-text');
+            const themeIcon = document.getElementById('theme-icon');
+
+            if (currentTheme === 'light') {
+                html.setAttribute('data-theme', 'dark'); reloadMermaid('dark');
+                themeBtnText.textContent = 'Light Mode';
+                themeIcon.innerHTML = `
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                `;
+            } else {
+                html.setAttribute('data-theme', 'light'); reloadMermaid('light');
+                themeBtnText.textContent = 'Dark Mode';
+                themeIcon.innerHTML = `
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 2v2"></path>
+                    <path d="M12 20v2"></path>
+                    <path d="M4.93 4.93l1.41 1.41"></path>
+                    <path d="M17.66 17.66l1.41 1.41"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="M6.34 17.66l-1.41 1.41"></path>
+                    <path d="M19.07 4.93l-1.41 1.41"></path>
+                `;
+            }
+        }
+
+        let currentActiveFilter = 'all';
+
+        function setFilter(element) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            currentActiveFilter = element.dataset.filter;
+            filterCards();
+        }
+
+        function filterCards() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.concept-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const definition = card.querySelector('.card-definition').textContent.toLowerCase();
+                const category = card.dataset.category;
+                const author = card.dataset.author;
+
+                const matchesSearch = title.includes(query) || definition.includes(query);
+
+                let matchesFilter = false;
+                if (currentActiveFilter === 'all') {
+                    matchesFilter = true;
+                } else if (currentActiveFilter === 'Preprocessing' || currentActiveFilter === 'Feature Engineering' || currentActiveFilter === 'Language Representation' || currentActiveFilter === 'Language Models') {
+                    matchesFilter = (category === currentActiveFilter);
+                } else if (currentActiveFilter === 'Darpan Kotak' || currentActiveFilter === 'Param Maru') {
+                    matchesFilter = (author === currentActiveFilter);
+                }
+
+                if (matchesSearch && matchesFilter) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Active sidebar navigation highlighting on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            let currentSectionId = 'doc-info';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 150) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                const link = item.querySelector('a').getAttribute('href').substring(1);
+                if (link === currentSectionId) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
